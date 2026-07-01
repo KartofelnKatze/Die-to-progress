@@ -61,7 +61,7 @@ int main() {
         DrawRectangle(x,y,length,height,Color {0,0,0,145});
         DrawText("Death type :", x+20.0f,y+10.0f,20.0f,WHITE);
         for(int i = 0; i < deaths.size(); i++) {
-            if(i < 3) {
+            if(i < 4) {
                 string text = to_string(i+1) + ". " + deaths[i];
                 DrawText(text.c_str(),x+20.0f,y+50.0f * (i+1),20.0f,WHITE);
             };
@@ -325,9 +325,9 @@ int main() {
 
     void draw() override {
         if (visible) {
-            if (type == "spike-v") {
+            if (type == "Spike-v") {
                 DrawTriangle({x,y-25.0f},{x-25.0f,y+25.0f},{x+25.0f,y+25.0f}, RED);
-            } else if (type == "spike-h") {
+            } else if (type == "Spike-h") {
                 DrawTriangle({x+25.0f,y-25.0f},{x-25.0f, y},{x+25.0f, y+25.0f}, RED);
             } else if (type == "Lava") {
                 DrawRectangle(x,y,obstacle_length,50.0f,ORANGE);
@@ -377,9 +377,13 @@ int main() {
     float velocity_y = 0.0f;
     float gravity = 0.8f;
     bool is_jumping = false;
-    float y_start= 525.0f;
+    float y_start;
+    float y_finish;
     Color player_color = {184, 203, 208,255};
-    Player(float x, float y) : Entity(x,y) {};
+    Player(float x, float y) : Entity(x,y) {
+        y_start = y+50.0f;
+        y_finish = y+50.0f;
+    };
     //Methods
     void move() {
         if (IsKeyDown(KEY_A)) {
@@ -413,6 +417,7 @@ int main() {
                     velocity_y = 0;
                     is_jumping = false;
                     y = platform->y-50.0f;
+                    y_finish = y;
                 }; 
                 if (y >= platform->y && y <= platform->y+50.0f) {
                     y = platform->y+50.0f;
@@ -430,11 +435,11 @@ int main() {
     };
 
     void collide_obstacle(Obstacle *entity, Level &level) {
-        if (entity->type == "spike-v" || entity->type == "spike-h") {
+        if (entity->type == "Spike-v" || entity->type == "Spike-h") {
             if (distance(entity) < 50.0f) {
                 update_status(level, entity->type);
             };
-        } else if (entity->type == "lava") {
+        } else if (entity->type == "Lava") {
             if (x+50.0f > entity->x && x < entity->x+entity->obstacle_length) {
                 if (y+50.0f > entity->y && y < entity->y+50.0f) {
                     update_status(level, entity->type);
@@ -500,7 +505,7 @@ int main() {
 
     void collide_fire(FireZone *fire, Level &level) {
         if (distance(fire) < 50.0f && fire->active) {
-            string death_type = "fire";
+            string death_type = "Fire";
             update_status(level, death_type);
         };
     };
@@ -508,16 +513,17 @@ int main() {
     void death_way(Level &level) {
         string death_type = "";
         //Fall damage
-        if (y_start < 300.0f && y+50.0f >= level.entities[0]->y) {
-            death_type = "fall";
+        if (y_finish-y_start >= 300.0f) {
+            death_type = "Fall";
             update_status(level, death_type);
-        } else if (x>screenWidth || x+50.0f<0) {
+        };
+        if (x>screenWidth || x+50.0f<0) {
             //Cross border
-            death_type = "border";
+            death_type = "Border";
             update_status(level, death_type);
         } else if(y<-150.0f) {
             //Fly away the up border
-            death_type = "fly away";
+            death_type = "Fly away";
             update_status(level, death_type);
         };
     };
@@ -546,7 +552,7 @@ int main() {
   //Level 0
   Wall wall3 = {-5.0f,-5.0f,screenHeight+10.0f};
   Wall wall4 = {screenWidth-45.0f,-5.0f,screenHeight+10.0f};
-  Obstacle pike0 = {400.0f,screenHeight-50.0f,"spike-v"};
+  Obstacle pike0 = {400.0f,screenHeight-50.0f,"Spike-v"};
   //Level 1
   Platform platform1 = {200.0f,400.0f,300.0f};
   platform1.x = 200.0f;
@@ -559,8 +565,8 @@ int main() {
   Platform platform4 = {500.0f,255.0f,150.0f};
   Wall wall1 = {500.0f,300.0f,280.0f};
   Wall wall2 = {200.0f,100.0f,305.0f};
-  Obstacle pike1 = {screenWidth-25.0f,75.0f,"spike-h"};
-  Obstacle pike2 = {300.0f,screenHeight-50.0f,"spike-v"};
+  Obstacle pike1 = {screenWidth-25.0f,75.0f,"Spike-h"};
+  Obstacle pike2 = {300.0f,screenHeight-50.0f,"Spike-v"};
   //Level 3
   Platform movingplatform1 = {200.0f,250.0f,300.0f};
   Obstacle lava1 = {0.0f,screenHeight-50.0f,"Lava"};
@@ -605,7 +611,7 @@ int main() {
   Button button7 = {75.0f,300.0f,BLUE};
   Saw saw4 = {screenWidth-75.0f,250.0f,25.0f};
   Wall wall6 = {500.0f,200.0f,300.0f};
-  Obstacle lava2 = {200.0f,screenHeight-30.0f,"lava"};
+  Obstacle lava2 = {200.0f,screenHeight-30.0f,"Lava"};
   lava2.obstacle_length = 100.0f;
   Platform platform9 = {40.0f,300.0f,100.0f};
   Platform platform10 = {550.0f,350.0f,100.0f};
@@ -617,7 +623,7 @@ int main() {
   Level level3  = {3,  {400.0f, 200.0f}, {&movingplatform1,&platform5,&lava1,&wall3,&wall4}, 2};
   Level level4  = {4,  {100.0f, screenHeight-150.0f}, {&button1,&button2,&fire1,&fire2,&wall3,&wall4,&platform6,&airflow1,&floor,&roof}, 3};
   Level level5  = {5,  {100.0f, screenHeight-75.0f}, {&movingplatform2,&wall5,&button4,&button3,&airflow2,&wall3,&wall4,&fire3,&fire4,&floor,&roof}, 3};
-  Level level6  = {6,  {100.0f, screenHeight-75.0f}, {&saw,&saw1,&saw2,&saw3,&wall3,&button5,&platform7,&platform8,&floor,&roof2}, 4};
+  Level level6  = {6,  {100.0f, screenHeight-75.0f}, {&saw,&saw1,&saw2,&saw3,&wall3,&button5,&platform7,&platform8,&floor}, 4};
   Level level7  = {7,  {100.0f, screenHeight-75.0f}, {&bomb,&button6,&wall3,&wall4,&lava2,&saw4,&button7,&wall6,&platform9,&platform10,&platform11,&floor}, 5};
   Level level8  = {8,  {100.0f, screenHeight-75.0f}, {&wall3,&wall4,&floor,&roof}, 0};
 
@@ -629,7 +635,7 @@ int main() {
 
   int level_id = 0;
   Level* level_selected = &levels[0];
-
+  //Mainloop
   while (!WindowShouldClose()) {
     if(main_menu.quit) {
         break;
