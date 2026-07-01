@@ -4,7 +4,7 @@ A 2D platformer where dying is part of the progression.
 Each death unlocks new paths and mechanics.
 
 ## Gameplay
-- Move with **A/D**
+- Move with **Q/D**
 - Jump with **Space**
 - Progress through levels by dying in different ways
 - Each death type unlocks the next level
@@ -24,7 +24,6 @@ Requirements:
 ```bash
 g++ main.cpp -o game -lraylib
 ```
-
 ## Levels
 | Level | Mechanic introduced |
 |-------|-------------------|
