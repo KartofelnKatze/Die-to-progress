@@ -545,14 +545,14 @@ int main() {
   Platform platform11 = {200.0f,150.0f,200.0f};
 
   Level level0  = {0,  {200.0f, screenHeight-75.0f}, {&floor,&pike0,&wall3,&wall4}, 1};
-  Level level1  = {1,  {100.0f, screenHeight-75.0f}, {&floor,&platform1,&platform2}, 2};
+  Level level1  = {1,  {100.0f, screenHeight-75.0f}, {&floor,&platform1,&platform2,&wall3,&roof}, 2};
   Level level2  = {2,  {100.0f, screenHeight-75.0f}, {&floor,&platform3,&platform4,&pike1,&pike2,&wall1,&wall2}, 4};
   Level level3  = {3,  {400.0f, 200.0f}, {&movingplatform1,&platform5,&lava1,&wall3,&wall4}, 2};
   Level level4  = {4,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&button1,&button2,&fire1,&fire2,&wall3,&wall4,&platform6,&airflow1}, 3};
   Level level5  = {5,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&movingplatform2,&wall5,&button4,&button3,&airflow2,&wall3,&wall4,&fire3,&fire4}, 3};
   Level level6  = {6,  {100.0f, screenHeight-75.0f}, {&saw,&saw1,&saw2,&saw3,&floor,&wall3,&button5,&platform7,&platform8}, 4};
   Level level7  = {7,  {100.0f, screenHeight-75.0f}, {&floor,&bomb,&button6,&wall3,&wall4,&lava2,&saw4,&button7,&wall6,&platform9,&platform10,&platform11}, 5};
-  Level level8  = {8,  {100.0f, screenHeight-75.0f}, {&floor}, 5};
+  Level level8  = {8,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&wall3,&wall4}, 0};
 
   vector<Level> levels = {
     level0, level1, level2, level3, level4,
@@ -630,6 +630,10 @@ int main() {
             level_id += 1;
             player.reset(levels[level_id].player_pos);
         };
+    };
+    if(level_id+1 >= levels.size()) {
+        DrawText("You have finished the game !",150.0f,200.0f,30.0f,BLACK);
+        DrawText("Well Done",250.0f,250.0f,30.0f,BLACK);
     };
     EndDrawing();
   }
