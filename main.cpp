@@ -21,7 +21,13 @@ int main() {
     string text;
     float length;
     float height;
-    ButtonHUD(float x, float y, string text, float length, float height) : x(x), y(y), text(text),length(length), height(height) {};
+    Texture2D texture = LoadTexture("Images/button.png");
+    ButtonHUD(float x, float y, string text, float length, float height) : x(x), y(y), text(text),length(length), height(height) {
+        if(text == "Back") {
+            unload();
+            texture =  LoadTexture("Images/back.png");
+        };
+    };
     bool is_clicked() {
         Vector2 mouse_pos = GetMousePosition();
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -34,9 +40,13 @@ int main() {
         return false;
     };
     void draw() {
-        DrawRectangle(x,y,length,height,GREEN);
+        //DrawRectangle(x,y,length,height,GREEN);
+        DrawTexture(texture,x,y,WHITE);
         Vector2 text_dimension = MeasureTextEx(GetFontDefault(), text.c_str(), 30, 1.0f);
         DrawText(text.c_str(),x+((length-text_dimension.x)/2),y+((height-text_dimension.y)/2),30,BLACK);
+    };
+    void unload() {
+        UnloadTexture(texture);
     };
   };
   struct MusicPlayer {
@@ -126,6 +136,11 @@ int main() {
         };
         if(options.active) {
             options.draw();
+        };
+    };
+    void unload() {
+        for(auto *button : buttons) {
+            button->unload();
         };
     };
   };
@@ -313,6 +328,7 @@ int main() {
     };
   };
   struct Player : public Entity {
+    Texture2D texture = LoadTexture("Images/player.png");
     float velocity_x = 5.0f;
     float velocity_y = 0.0f;
     float gravity = 0.8f;
@@ -339,7 +355,11 @@ int main() {
     };
 
     void draw() override {
-        DrawRectangle(x,y, 50, 50, player_color);
+        DrawTexture(texture, x, y, WHITE);
+    };
+
+    void unload() {
+        UnloadTexture(texture);
     };
 
     void collide_platform(Platform *platform, Level &level) {
@@ -469,6 +489,7 @@ int main() {
   };
 
   //Variables
+  Texture2D background_texture = LoadTexture("Images/background.png");
   Menu main_menu = {};
   MusicPlayer main_music = {};
   main_music.play();
@@ -562,10 +583,10 @@ int main() {
 
   int level_id = 0;
   Level* level_selected = &levels[0];
-  Color background_color = {74,145,158,255};
 
   while (!WindowShouldClose()) {
     if(main_menu.quit) {
+
         break;
     };
     main_music.update();
@@ -611,7 +632,7 @@ int main() {
     level_selected = &levels[level_id];
 
     BeginDrawing();
-    ClearBackground(background_color);
+    DrawTexture(background_texture,0.0f,0.0f,WHITE);
 
     if(!main_menu.game) {
         main_menu.draw();
@@ -637,6 +658,8 @@ int main() {
     };
     EndDrawing();
   }
+  main_menu.unload();
+  player.unload();
   main_music.unload();
   CloseAudioDevice();
   CloseWindow();
