@@ -49,6 +49,44 @@ int main() {
         UnloadTexture(texture);
     };
   };
+  struct HUD {
+    float x;
+    float y;
+    bool click = false;
+    float length = 200.0f;
+    float height =300.0f;
+    Vector2 mouse_pos = GetMousePosition();
+    HUD(float x, float y) : x(x), y(y) {};
+    void draw(vector<string> &deaths) {
+        DrawRectangle(x,y,length,height,Color {0,0,0,145});
+        DrawText("Death type :", x+20.0f,y+10.0f,20.0f,WHITE);
+        for(int i = 0; i < deaths.size(); i++) {
+            if(i < 3) {
+                string text = to_string(i+1) + ". " + deaths[i];
+                DrawText(text.c_str(),x+20.0f,y+50.0f * (i+1),20.0f,WHITE);
+            };
+        };
+    };
+    void is_clicked() {
+        Vector2 mouse_pos = GetMousePosition(); 
+        click = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+        if(x < mouse_pos.x && x+length>mouse_pos.x) {
+            if(y < mouse_pos.y && y+height > mouse_pos.y) {
+                if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    click = true;
+                };
+            };
+        };
+    };
+    void update() {
+        mouse_pos = GetMousePosition();
+        is_clicked();
+        if(click) {
+            x = mouse_pos.x;
+            y = mouse_pos.y;
+        };
+    };
+  };
   struct MusicPlayer {
     vector<string> musics = {"Audio/Bubblaine.mp3"};
     int index = 0;
@@ -81,7 +119,7 @@ int main() {
     bool active = false;
     Color option_background = {145,145,145,200};
     Vector2 volume_cursor = {};
-    ButtonHUD back = {(screenWidth-400)/2+150.0f,300.0f,"Back",100.0f,50.0f};
+    ButtonHUD back = {(screenWidth-400)/2+150.0f,400.0f,"Back",100.0f,50.0f};
     void update(Music *music) {
         if(IsKeyDown(KEY_RIGHT)) {
             volume += 0.05f;
@@ -97,7 +135,7 @@ int main() {
         };
     };
     void draw() {
-        DrawRectangle((screenWidth-400)/2,100.0f,400.0f,300.0f,option_background);
+        DrawRectangle((screenWidth-400)/2,100.0f,400.0f,400.0f,option_background);
         back.draw();
         DrawText("RIGHT-LEFT for VOLUME CONTROL", 320, 234, 10, DARKGREEN);
         DrawRectangle(300, 260, 200, 12, LIGHTGRAY);
@@ -208,7 +246,9 @@ int main() {
         };
     };
     void draw() override {
+        Rectangle rect = {x,y,length,50.0f};
         DrawRectangle(x,y,length,50.0f, color);
+        DrawRectangleLinesEx(rect,5.0f,BLACK);
     };
   };
   struct Bomb : public Entity {
@@ -289,7 +329,7 @@ int main() {
                 DrawTriangle({x,y-25.0f},{x-25.0f,y+25.0f},{x+25.0f,y+25.0f}, RED);
             } else if (type == "spike-h") {
                 DrawTriangle({x+25.0f,y-25.0f},{x-25.0f, y},{x+25.0f, y+25.0f}, RED);
-            } else if (type == "lava") {
+            } else if (type == "Lava") {
                 DrawRectangle(x,y,obstacle_length,50.0f,ORANGE);
             };
         };
@@ -300,7 +340,9 @@ int main() {
     Color color = {112,156,167,255};
     Wall(float x, float y, float height) : Entity(x,y), height(height) {};
     void draw() override {
+        Rectangle rect = {x,y,50.0f,height};
         DrawRectangle(x,y,50.0f, height, color);
+        DrawRectangleLinesEx(rect,5.0f,BLACK);
     };
   };
   struct Level {
@@ -313,7 +355,9 @@ int main() {
 
     void update(string &type) {
         if (find(lock.begin(), lock.end(), type) == lock.end()) {
-            lock.push_back(type);
+            if(nbr_lock-lock.size() >= 0 ) {
+                lock.push_back(type);
+            };
         };
     };
     void draw() {
@@ -322,9 +366,9 @@ int main() {
                entity->draw(); 
             };
         };
-        DrawText(name.c_str(), 20, 20, 20, BLACK); 
+        DrawText(name.c_str(), 50, 20, 20, BLACK); 
         string text_remain_lock = "Remaining locks : " + to_string(nbr_lock-lock.size()); 
-        DrawText(text_remain_lock.c_str(),20, 50, 20 ,BLACK);
+        DrawText(text_remain_lock.c_str(), 50 , 50, 20 ,BLACK);
     };
   };
   struct Player : public Entity {
@@ -491,16 +535,17 @@ int main() {
   //Variables
   Texture2D background_texture = LoadTexture("Images/background.png");
   Menu main_menu = {};
+  HUD hud = {screenWidth-200.0f,200.0f};
   MusicPlayer main_music = {};
   main_music.play();
   Player player = {100.0f, screenHeight-75.0f};
   player.y_start = player.y;
-  Platform floor = {0.0f,screenHeight-25.0f,screenWidth};
-  Platform roof = {0.0f,-25.0f,screenWidth};
+  Platform floor = {-5.0f,screenHeight-25.0f,screenWidth+10.0f};
+  Platform roof = {-5.0f,-35.0f,screenWidth+10.0f};
 
   //Level 0
-  Wall wall3 = {0.0f,0.0f,screenHeight};
-  Wall wall4 = {screenWidth-50.0f,0.0f,screenHeight};
+  Wall wall3 = {-5.0f,-5.0f,screenHeight+10.0f};
+  Wall wall4 = {screenWidth-45.0f,-5.0f,screenHeight+10.0f};
   Obstacle pike0 = {400.0f,screenHeight-50.0f,"spike-v"};
   //Level 1
   Platform platform1 = {200.0f,400.0f,300.0f};
@@ -511,26 +556,25 @@ int main() {
   platform2.y = 250.0f;
   //Level 2
   Platform platform3 = {200.0f,400.0f,200.0f};
-  Platform platform4 = {500.0f,250.0f,150.0f};
-  Wall wall1 = {500.0f,300.0f,300.0f};
-  Wall wall2 = {200.0f,100.0f,300.0f};
+  Platform platform4 = {500.0f,255.0f,150.0f};
+  Wall wall1 = {500.0f,300.0f,280.0f};
+  Wall wall2 = {200.0f,100.0f,305.0f};
   Obstacle pike1 = {screenWidth-25.0f,75.0f,"spike-h"};
   Obstacle pike2 = {300.0f,screenHeight-50.0f,"spike-v"};
   //Level 3
   Platform movingplatform1 = {200.0f,250.0f,300.0f};
-  Obstacle lava1 = {0.0f,screenHeight-50.0f,"lava"};
+  Obstacle lava1 = {0.0f,screenHeight-50.0f,"Lava"};
   lava1.obstacle_length = screenWidth;
   movingplatform1.is_moving = true;
   movingplatform1.x_start = movingplatform1.x;
   Platform platform5 = {40.0f,40.0f,150.0f};
-  platform5.color = {74,145,158,255};
   //Level 4
   FireZone fire1 = {300.0f,screenHeight-40.0f};
   FireZone fire2 = {350.0f,screenHeight-40.0f};
   Button button1 = {screenWidth-200.0f,195.0f, GREEN};
   Button button2 = {screenWidth-100.0f,screenHeight-35.0f,YELLOW};
   button2.visible = false;
-  Platform platform6 = {screenWidth-300.0f,200.0f,300.0f};
+  Platform platform6 = {screenWidth-335.0f,200.0f,300.0f};
   AirFlow airflow1 = {200.0f, 250.0f,250.0f};
   //Level 5 
   Platform movingplatform2 = {150.0f,150.0f,400.0f};
@@ -549,9 +593,11 @@ int main() {
   Saw saw2 = {450.0f,screenHeight-25.0f,50.0f};
   Saw saw3 = {350.0f,screenHeight-25.0f,50.0f};
   Button button5 = {650.0f,screenHeight-35.0f,BLUE};
-  Platform platform7 = {50.0f,150.0f,100.0f};
+  Platform platform7 = {40.0f,150.0f,100.0f};
   Platform platform8 = {350.0f,350.0f, 100.0f};
   platform7.visible = false;
+  Platform roof2 = {-5.0f,-35.0f,screenWidth+10.0f};
+  roof2.visible = false;
   platform8.color = {74,145,158,255};
   //Level 7
   Bomb bomb = {450.0f,0.0f,10.0f,10.0f};
@@ -561,19 +607,19 @@ int main() {
   Wall wall6 = {500.0f,200.0f,300.0f};
   Obstacle lava2 = {200.0f,screenHeight-30.0f,"lava"};
   lava2.obstacle_length = 100.0f;
-  Platform platform9 = {50.0f,300.0f,100.0f};
+  Platform platform9 = {40.0f,300.0f,100.0f};
   Platform platform10 = {550.0f,350.0f,100.0f};
   Platform platform11 = {200.0f,150.0f,200.0f};
 
-  Level level0  = {0,  {200.0f, screenHeight-75.0f}, {&floor,&pike0,&wall3,&wall4}, 1};
-  Level level1  = {1,  {100.0f, screenHeight-75.0f}, {&floor,&platform1,&platform2,&wall3,&roof}, 2};
-  Level level2  = {2,  {100.0f, screenHeight-75.0f}, {&floor,&platform3,&platform4,&pike1,&pike2,&wall1,&wall2}, 4};
+  Level level0  = {0,  {200.0f, screenHeight-75.0f}, {&pike0,&wall3,&wall4,&floor}, 1};
+  Level level1  = {1,  {100.0f, screenHeight-75.0f}, {&platform1,&platform2,&wall3,&floor,&roof}, 2};
+  Level level2  = {2,  {100.0f, screenHeight-75.0f}, {&platform3,&platform4,&pike1,&pike2,&wall1,&wall2,&floor}, 4};
   Level level3  = {3,  {400.0f, 200.0f}, {&movingplatform1,&platform5,&lava1,&wall3,&wall4}, 2};
-  Level level4  = {4,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&button1,&button2,&fire1,&fire2,&wall3,&wall4,&platform6,&airflow1}, 3};
-  Level level5  = {5,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&movingplatform2,&wall5,&button4,&button3,&airflow2,&wall3,&wall4,&fire3,&fire4}, 3};
-  Level level6  = {6,  {100.0f, screenHeight-75.0f}, {&saw,&saw1,&saw2,&saw3,&floor,&wall3,&button5,&platform7,&platform8}, 4};
-  Level level7  = {7,  {100.0f, screenHeight-75.0f}, {&floor,&bomb,&button6,&wall3,&wall4,&lava2,&saw4,&button7,&wall6,&platform9,&platform10,&platform11}, 5};
-  Level level8  = {8,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&wall3,&wall4}, 0};
+  Level level4  = {4,  {100.0f, screenHeight-150.0f}, {&button1,&button2,&fire1,&fire2,&wall3,&wall4,&platform6,&airflow1,&floor,&roof}, 3};
+  Level level5  = {5,  {100.0f, screenHeight-75.0f}, {&movingplatform2,&wall5,&button4,&button3,&airflow2,&wall3,&wall4,&fire3,&fire4,&floor,&roof}, 3};
+  Level level6  = {6,  {100.0f, screenHeight-75.0f}, {&saw,&saw1,&saw2,&saw3,&wall3,&button5,&platform7,&platform8,&floor,&roof2}, 4};
+  Level level7  = {7,  {100.0f, screenHeight-75.0f}, {&bomb,&button6,&wall3,&wall4,&lava2,&saw4,&button7,&wall6,&platform9,&platform10,&platform11,&floor}, 5};
+  Level level8  = {8,  {100.0f, screenHeight-75.0f}, {&wall3,&wall4,&floor,&roof}, 0};
 
   vector<Level> levels = {
     level0, level1, level2, level3, level4,
@@ -586,7 +632,6 @@ int main() {
 
   while (!WindowShouldClose()) {
     if(main_menu.quit) {
-
         break;
     };
     main_music.update();
@@ -643,9 +688,11 @@ int main() {
     } else {
         player.draw();
         level_selected->draw();
+        hud.draw(level_selected->lock);
+        hud.update();
     };
     //Change the current level
-    if (level_selected->nbr_lock <= (int)level_selected->lock.size() && level_id < levels.size()) {
+    if (level_selected->nbr_lock <= (int)level_selected->lock.size() && level_id+1 < levels.size()) {
         DrawText("Press the right arrow to access next level", 150, 200, 20, BLACK);
         if (IsKeyPressed(KEY_RIGHT)) {
             level_id += 1;
