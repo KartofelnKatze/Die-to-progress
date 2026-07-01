@@ -38,7 +38,7 @@ g++ main.cpp -o game -lraylib
 | 4 | Buttons + fire zones |
 | ... | ... |
 ## Some capture of the game 
-<img src = ""/>
+<img src = "Preview/game_screen.png"/>
 ## Credits
 Made by [Chiraco]  
 Built with [raylib](https://www.raylib.com/)
