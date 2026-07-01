@@ -36,5 +36,5 @@ g++ main.cpp -o game -lraylib
 | ... | ... |
 
 ## Credits
-Made by [your name]  
+Made by [Chiraco]  
 Built with [raylib](https://www.raylib.com/)
