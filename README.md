@@ -37,7 +37,8 @@ g++ main.cpp -o game -lraylib
 | 3 | Moving platform + lava |
 | 4 | Buttons + fire zones |
 | ... | ... |
-
+## Some capture of the game 
+<img src = ""/>
 ## Credits
 Made by [Chiraco]  
 Built with [raylib](https://www.raylib.com/)
