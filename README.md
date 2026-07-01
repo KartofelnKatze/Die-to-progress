@@ -24,6 +24,10 @@ Requirements:
 ```bash
 g++ main.cpp -o game -lraylib
 ```
+## How to play it
+1. Download the ZIP file from the github repositoy
+2. Extract all data from the ZIP file
+3. Execute the main.exe 
 ## Levels
 | Level | Mechanic introduced |
 |-------|-------------------|
