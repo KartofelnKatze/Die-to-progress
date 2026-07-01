@@ -69,7 +69,7 @@ int main() {
   struct Options {
     float volume = 0.8f;
     bool active = false;
-    Color option_background = {145,145,145,145};
+    Color option_background = {145,145,145,200};
     Vector2 volume_cursor = {};
     ButtonHUD back = {(screenWidth-400)/2+150.0f,300.0f,"Back",100.0f,50.0f};
     void update(Music *music) {
@@ -263,8 +263,10 @@ int main() {
   };
   struct Obstacle : public Entity {
     string type;
-    float length = 1.0f;
-    Obstacle(float x , float y, string type) : Entity(x,y), type(type) {};
+    Obstacle(float x , float y, string type) : Entity(x,y), type(type) {
+        length = 1.0f;
+    };
+    float obstacle_length = 0.0f;
 
     void draw() override {
         if (visible) {
@@ -273,7 +275,7 @@ int main() {
             } else if (type == "spike-h") {
                 DrawTriangle({x+25.0f,y-25.0f},{x-25.0f, y},{x+25.0f, y+25.0f}, RED);
             } else if (type == "lava") {
-                DrawRectangle(x,y,length,50.0f,ORANGE);
+                DrawRectangle(x,y,obstacle_length,50.0f,ORANGE);
             };
         };
     };
@@ -369,7 +371,7 @@ int main() {
                 update_status(level, entity->type);
             };
         } else if (entity->type == "lava") {
-            if (x+50.0f > entity->x && x < entity->x+entity->length) {
+            if (x+50.0f > entity->x && x < entity->x+entity->obstacle_length) {
                 if (y+50.0f > entity->y && y < entity->y+50.0f) {
                     update_status(level, entity->type);
                 };
@@ -496,7 +498,7 @@ int main() {
   //Level 3
   Platform movingplatform1 = {200.0f,250.0f,300.0f};
   Obstacle lava1 = {0.0f,screenHeight-50.0f,"lava"};
-  lava1.length = screenWidth;
+  lava1.obstacle_length = screenWidth;
   movingplatform1.is_moving = true;
   movingplatform1.x_start = movingplatform1.x;
   Platform platform5 = {40.0f,40.0f,150.0f};
@@ -537,7 +539,7 @@ int main() {
   Saw saw4 = {screenWidth-75.0f,250.0f,25.0f};
   Wall wall6 = {500.0f,200.0f,300.0f};
   Obstacle lava2 = {200.0f,screenHeight-30.0f,"lava"};
-  lava2.length = 100.0f;
+  lava2.obstacle_length = 100.0f;
   Platform platform9 = {50.0f,300.0f,100.0f};
   Platform platform10 = {550.0f,350.0f,100.0f};
   Platform platform11 = {200.0f,150.0f,200.0f};
@@ -545,7 +547,7 @@ int main() {
   Level level0  = {0,  {200.0f, screenHeight-75.0f}, {&floor,&pike0,&wall3,&wall4}, 1};
   Level level1  = {1,  {100.0f, screenHeight-75.0f}, {&floor,&platform1,&platform2}, 2};
   Level level2  = {2,  {100.0f, screenHeight-75.0f}, {&floor,&platform3,&platform4,&pike1,&pike2,&wall1,&wall2}, 4};
-  Level level3  = {3,  {300.0f, 200.0f}, {&floor,&movingplatform1,&platform5,&lava1,&wall3,&wall4}, 2};
+  Level level3  = {3,  {400.0f, 200.0f}, {&movingplatform1,&platform5,&lava1,&wall3,&wall4}, 2};
   Level level4  = {4,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&button1,&button2,&fire1,&fire2,&wall3,&wall4,&platform6,&airflow1}, 3};
   Level level5  = {5,  {100.0f, screenHeight-75.0f}, {&floor,&roof,&movingplatform2,&wall5,&button4,&button3,&airflow2,&wall3,&wall4,&fire3,&fire4}, 3};
   Level level6  = {6,  {100.0f, screenHeight-75.0f}, {&saw,&saw1,&saw2,&saw3,&floor,&wall3,&button5,&platform7,&platform8}, 4};
@@ -626,7 +628,7 @@ int main() {
         DrawText("Press the right arrow to access next level", 150, 200, 20, BLACK);
         if (IsKeyPressed(KEY_RIGHT)) {
             level_id += 1;
-            player.reset(level_selected->player_pos);
+            player.reset(levels[level_id].player_pos);
         };
     };
     EndDrawing();
