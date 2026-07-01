@@ -233,7 +233,9 @@ int main() {
     float x_start;
     float velocity_x = 1.0f;
     Color color = {112, 156, 167, 255};
-    Platform(float x, float y, float play_length) : Entity(x,y) , length(play_length) {}; 
+    Platform(float x, float y, float play_length) : Entity(x,y) , length(play_length) {
+        active = true;
+    }; 
     
     void moving() override {
         if (is_moving) {
@@ -308,6 +310,7 @@ int main() {
         } else if(ColorIsEqual(color,BLUE)) {
             if(typeid(*entity) == typeid(Platform)) {
                 entity->visible = true;
+                entity->active = true;
             };
         };
     };
@@ -411,7 +414,7 @@ int main() {
     };
 
     void collide_platform(Platform *platform, Level &level) {
-        if(platform->visible) {
+        if(platform->active) {
             if (((x+50.0f > platform->x ) && x < platform->x + platform->length)) {
                 if (y+50.0f > platform->y && y+50.0f < platform->y+50.0f) {
                     velocity_y = 0;
@@ -574,6 +577,8 @@ int main() {
   movingplatform1.is_moving = true;
   movingplatform1.x_start = movingplatform1.x;
   Platform platform5 = {40.0f,40.0f,150.0f};
+  platform5.visible = false;
+  platform5.active = true;
   //Level 4
   FireZone fire1 = {300.0f,screenHeight-40.0f};
   FireZone fire2 = {350.0f,screenHeight-40.0f};
@@ -601,7 +606,9 @@ int main() {
   Button button5 = {650.0f,screenHeight-35.0f,BLUE};
   Platform platform7 = {40.0f,150.0f,100.0f};
   Platform platform8 = {350.0f,350.0f, 100.0f};
+  platform8.visible = false;
   platform7.visible = false;
+  platform7.active = false;
   Platform roof2 = {-5.0f,-35.0f,screenWidth+10.0f};
   roof2.visible = false;
   platform8.color = {74,145,158,255};
@@ -646,7 +653,7 @@ int main() {
         player.move();
         player.death_way(*level_selected);
         for (auto *entity : level_selected->entities) {
-            if (typeid(*entity) == typeid(Platform)) {
+            if (typeid(*entity) == typeid(Platform) && entity->active) {
                 player.collide_platform(static_cast<Platform*>(entity),levels[level_id]);
                 entity->moving();
             } else if (typeid(*entity) == typeid(Obstacle)) {
