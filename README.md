@@ -39,6 +39,7 @@ g++ main.cpp -o game -lraylib
 | ... | ... |
 ## Some capture of the game 
 <img src = "Preview/game_screen.png"/>
+<img src = "Preview/level1.png"/>
 ## Credits
 Made by [Chiraco]  
 Built with [raylib](https://www.raylib.com/)
